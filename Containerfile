@@ -3,6 +3,9 @@ ARG SOURCE_IMAGE="${SOURCE_IMAGE:-silverblue-main}"
 ARG SOURCE_ORG="${SOURCE_ORG:-ublue-os}"
 ARG BASE_IMAGE="ghcr.io/${SOURCE_ORG}/${SOURCE_IMAGE}"
 ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-40}"
+ARG KERNEL_FLAVOR="${KERNEL_FLAVOR:-main}"
+
+FROM ghcr.io/${SOURCE_ORG}/${KERNEL_FLAVOR}-kernel:${FEDORA_MAJOR_VERSION} AS kernel
 
 FROM ${BASE_IMAGE}:${FEDORA_MAJOR_VERSION} AS main
 
@@ -14,6 +17,7 @@ ARG RPMFUSION_MIRROR=""
 
 COPY *.sh /tmp/
 COPY ${KERNEL_FLAVOR}/ /tmp/
+COPY --from=kernel /tmp/rpms /tmp/kernel-rpms/
 
 RUN mkdir -p /var/lib/alternatives && \
     IMAGE_FLAVOR=main /tmp/image-info.sh && \
